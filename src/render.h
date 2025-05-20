@@ -2,6 +2,6 @@
 #define RENDER_H
 
 #include "./common.h"
-bool paint_window(SDL_Window* window);
+errcode paint_window(SDL_Window* window);
 
 #endif  // RENDER_H

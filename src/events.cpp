@@ -3,7 +3,7 @@
 #include "./render.h"
 
 // Event: https://wiki.libsdl.org/SDL2/SDL_Event
-bool handle_event(const SDL_Event* event) {
+errcode handle_event(const SDL_Event* event) {
   /* Returns true if it should quit */
   switch (event->type) {
     case SDL_QUIT: {
