@@ -2,6 +2,6 @@
 #define EVENTS_H
 
 #include "./common.h"
-errcode handle_event(const SDL_Event* event);
+bool handle_event(const SDL_Event* event, const int t);
 
 #endif  // EVENTS_H

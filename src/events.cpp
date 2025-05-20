@@ -3,7 +3,7 @@
 #include "./render.h"
 
 // Event: https://wiki.libsdl.org/SDL2/SDL_Event
-errcode handle_event(const SDL_Event* event) {
+bool handle_event(const SDL_Event* event, const int t) {
   /* Returns true if it should quit */
   switch (event->type) {
     case SDL_QUIT: {
@@ -12,16 +12,21 @@ errcode handle_event(const SDL_Event* event) {
     } break;
 
     case SDL_WINDOWEVENT: {
+      // go ahead and get the window
+      SDL_Window* window = SDL_GetWindowFromID(event->window.windowID);
+      // TODO: the errcode int this returns is not really compatible
+      //  with the bool this function returns:
+      CHECK_SDL_NOT_NULL(SDL_GetWindowFromID, window);
+
       switch (event->window.event) {
         case SDL_WINDOWEVENT_EXPOSED: {
-          printf("should redraw\n");
-          SDL_Window* window = SDL_GetWindowFromID(event->window.windowID);
-          CHECK_SDL_NOT_NULL(SDL_GetWindowFromID, window);
-          paint_window(window);
+          printf("window exposed\n");
+          paint_window(window, t);
         } break;
 
         case SDL_WINDOWEVENT_RESIZED: {
           printf("Window resized.\n");
+          paint_window(window, t);
         } break;
 
         case SDL_WINDOWEVENT_CLOSE: {
@@ -30,15 +35,14 @@ errcode handle_event(const SDL_Event* event) {
         } break;
 
         default: {
-          // window event, whatever dude
+          // printf("Unhandled: %d", event->type);
         } break;
       }
-    } break;
+    }
 
     default: {
       // printf("Unhandled: %d", event->type);
     } break;
-  };
-
+  }
   return false;
 }
