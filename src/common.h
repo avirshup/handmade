@@ -8,8 +8,8 @@
 #define internal static
 #define local_persistent static
 #define global_var static
-#define errcode int
 
+typedef int errcode;
 typedef uint8_t uint8;
 
 #define CHECK_SDL_ERR(expr)                                  \
