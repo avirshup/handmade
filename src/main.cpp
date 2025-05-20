@@ -6,10 +6,8 @@
 
 // SDL docs (wiki???): https://wiki.libsdl.org/SDL2/SDL_CreateWindow
 int main() {
-  if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-    printf("FATAL: SDL init failed\n");
-    return 1;
-  }
+  CHECK_SDL_ERR(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER));
+
   SDL_Window* window = SDL_CreateWindow(
       "Handmade!",
       SDL_WINDOWPOS_UNDEFINED,
@@ -19,7 +17,7 @@ int main() {
       SDL_WINDOW_RESIZABLE);
   CHECK_SDL_NOT_NULL(SDL_CreateWindow, window);
 
-  SDL_Renderer* renderer =
+  const SDL_Renderer* renderer =
       SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
   CHECK_SDL_NOT_NULL(SDL_CreateRenderer, renderer);
 

@@ -1,6 +1,6 @@
 #include "./events.h"
 #include "./common.h"
-#include "./render.h"
+#include "./inputs.h"
 
 // Event: https://wiki.libsdl.org/SDL2/SDL_Event
 bool handle_event(const SDL_Event* event, const int t) {
@@ -9,6 +9,37 @@ bool handle_event(const SDL_Event* event, const int t) {
     case SDL_QUIT: {
       printf("Got SDL_QUIT\n");
       return true;
+    } break;
+
+    // --- input events
+    // keyboard (starts at 0x300)
+    case SDL_KEYDOWN:
+    case SDL_KEYUP: {
+      keyboard_key(
+          event->key.keysym,
+          event->key.state,
+          event->key.repeat);  // SDL_KeyboardEvent
+    } break;
+
+    // controller (starts at 0x650)
+    case SDL_CONTROLLERDEVICEADDED: {
+      add_controller(event->cdevice.which);  // SDL_ControllerDeviceEvent
+    } break;
+    case SDL_CONTROLLERDEVICEREMOVED: {
+      remove_controller(event->cdevice.which);  // SDL_ControllerDeviceEvent
+    } break;
+    case SDL_CONTROLLERAXISMOTION: {
+      controller_axis(
+          event->caxis.which,
+          static_cast<SDL_GameControllerAxis>(event->caxis.axis),
+          event->caxis.value);  // SDL_ControllerAxisMotion
+    } break;
+    case SDL_CONTROLLERBUTTONDOWN:
+    case SDL_CONTROLLERBUTTONUP: {
+      controller_button(
+          event->button.which,
+          static_cast<SDL_GameControllerButton>(event->button.button),
+          event->button.state);
     } break;
 
     case SDL_WINDOWEVENT: {
