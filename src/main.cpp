@@ -2,6 +2,9 @@
 #include "./events.h"
 #include "./render.h"
 
+constexpr Uint64 MS_PER_FRAME =
+    17;  // approx. 60 fps (FIXME: find a better way)
+
 // SDL instead of windows: https://davidgow.net/handmadepenguin/ch1.html
 
 // SDL docs (wiki???): https://wiki.libsdl.org/SDL2/SDL_CreateWindow
@@ -21,24 +24,25 @@ int main() {
       SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
   CHECK_SDL_NOT_NULL(SDL_CreateRenderer, renderer);
 
+  auto next_tick = SDL_GetTicks64();
+  int frame_num = 0;
+
   // the main loop I guess?
-  for (int t = 0;; t++) {
+  // https://stackoverflow.com/a/75967125/1958900
+  while (true) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-      if (handle_event(&event, t)) {
+      if (handle_event(&event)) {
         printf("DEBUG: event triggered shutdown");
         return 0;
       }
     }
-    paint_window(window, t);
+
+    // extremely hacky framerate cap, from
+    // https://stackoverflow.com/a/75967125/1958900
+    if (SDL_GetTicks64() > next_tick) {
+      paint_window(window, frame_num++);
+      next_tick += MS_PER_FRAME;
+    }
   }
 }
-
-// if (SDL_ShowSimpleMessageBox(
-//         SDL_MESSAGEBOX_WARNING,
-//         "Handmade Hero",
-//         "It's running!",
-//         0) != 0) {
-//   printf("FATAL: msg box failed\n");
-//   return 1;
-// }

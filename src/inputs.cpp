@@ -2,10 +2,13 @@
 
 #include <assert.h>
 
+#include <optional>
 #include <unordered_map>
 #include "./common.h"
 
 #define MAX_PLAYERS 8
+
+using namespace std;
 
 typedef int ControllerId;
 
@@ -13,18 +16,18 @@ typedef struct GPad {
   SDL_JoystickID jid;
   ControllerId cid;
   SDL_GameController* handle;
-} gpad;
+} GPad;
 
 // TODO: not global vars, COME ON
-global_var std::unordered_map<SDL_JoystickID, GPad> GPAD_MAP;
+global_var unordered_map<SDL_JoystickID, GPad> GPAD_MAP;
 global_var ControllerId next_controller_id;
 
-auto get_gpad(const SDL_JoystickID jid)
-    -> std::optional<std::reference_wrapper<GPad>> {
+internal auto get_gpad(const SDL_JoystickID jid)
+    -> optional<reference_wrapper<GPad>> {
   if (const auto it = GPAD_MAP.find(jid); it != GPAD_MAP.end()) {
-    return std::ref(it->second);  // wrap the reference
+    return ref(it->second);  // wrap the reference
   }
-  return std::nullopt;
+  return nullopt;
 }
 
 /***** Input events ******/

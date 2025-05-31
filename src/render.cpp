@@ -65,7 +65,7 @@ paint_weird_gradient(Pixel* bitmap_buff, const int w, const int h, int t) {
     Pixel* pixel = row;
     for (int x = 0; x < w; x++) {
       *pixel = {
-          .r = static_cast<uint8>(3 + x * t),
+          .r = static_cast<uint8>(3 + x + t),
           .b = static_cast<uint8>(5 + y + 2 * t),
           .g = static_cast<uint8>(y + x + 13 + 3 * t)};
       ++pixel;
