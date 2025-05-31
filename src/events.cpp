@@ -54,17 +54,17 @@ bool handle_event(const SDL_Event* event) {
 
       switch (event->window.event) {
         case SDL_WINDOWEVENT_EXPOSED: {
-          printf("window exposed\n");
+          spdlog::debug("window exposed: {}", event->window.event);
         } break;
 
         case SDL_WINDOWEVENT_RESIZED: {
-          printf("Window resized.\n");
+          spdlog::debug("Window resized: {}", event->window.event);
           // TODO: trigger resize here instead of checking while painting?
           // TODO: I may have missed a part about aspect ratios and stretching
         } break;
 
         case SDL_WINDOWEVENT_CLOSE: {
-          printf("Window closed, should now quit\n");
+          spdlog::info("Window closed, will quit: {}", event->window.event);
           return true;
         } break;
 

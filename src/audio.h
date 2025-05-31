@@ -4,9 +4,9 @@
 
 #include "./common.h"
 
-errcode queue_audio(const void* data, const int nbytes);
-void pause_audio(const bool pause);
+errcode queue_audio(const void* data, int nbytes);
+void pause_audio(bool pause);
 errcode init_audio();
-void play_square_wave();
+int play_square_wave(unsigned tone_hz, unsigned duration_ms);
 
 #endif  // AUDIO_H
