@@ -1,3 +1,4 @@
+#include "./audio.h"
 #include "./common.h"
 #include "./events.h"
 #include "./render.h"
@@ -9,8 +10,14 @@ constexpr Uint64 MS_PER_FRAME =
 
 // SDL docs (wiki???): https://wiki.libsdl.org/SDL2/SDL_CreateWindow
 int main() {
-  CHECK_SDL_ERR(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER));
+  CHECK_SDL_ERR(
+      SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO));
 
+  /* ----- Init Audio ----- */
+  init_audio();
+
+  /* ----- Init graphics ----- */
+  // init window
   SDL_Window* window = SDL_CreateWindow(
       "Handmade!",
       SDL_WINDOWPOS_UNDEFINED,
@@ -24,11 +31,10 @@ int main() {
       SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
   CHECK_SDL_NOT_NULL(SDL_CreateRenderer, renderer);
 
+  /* ----- In The Loop ----- */
   auto next_tick = SDL_GetTicks64();
   int frame_num = 0;
 
-  // the main loop I guess?
-  // https://stackoverflow.com/a/75967125/1958900
   while (true) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -42,6 +48,7 @@ int main() {
     // https://stackoverflow.com/a/75967125/1958900
     if (SDL_GetTicks64() > next_tick) {
       paint_window(window, frame_num++);
+      play_square_wave();
       next_tick += MS_PER_FRAME;
     }
   }

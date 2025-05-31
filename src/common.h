@@ -1,6 +1,7 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <cassert>
 #include <cstdint>
 #include <iostream>
 #include "SDL.h"

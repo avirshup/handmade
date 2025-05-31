@@ -1,7 +1,5 @@
 #include "./inputs.h"
 
-#include <assert.h>
-
 #include <optional>
 #include <unordered_map>
 #include "./common.h"
@@ -91,15 +89,15 @@ errcode add_controller(const SDL_JoystickID jid) {
 }
 
 errcode remove_controller(const SDL_JoystickID jid) {
-  const auto found_gpad_iter = GPAD_MAP.find(jid);
-  if (found_gpad_iter == GPAD_MAP.end()) {
+  const auto gpad = get_gpad(jid);
+  if (!gpad)
     return 1;
-  }
 
-  const GPad old_gpad = found_gpad_iter->second;
+  // TODO: really not sure about how memory safety works here!!!
+  const GPad old_gpad = move(gpad->get());
   printf("Removed controller ID %d", old_gpad.cid);
-  GPAD_MAP.erase(jid);
 
   SDL_GameControllerClose(old_gpad.handle);
+  GPAD_MAP.erase(jid);
   return 0;
 }

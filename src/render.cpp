@@ -18,6 +18,7 @@ typedef struct ScreenBuffer {
 
 internal errcode
 resize_buffer(SDL_Renderer* renderer, Buffer* buffer, int w, int h);
+
 internal void paint_weird_gradient(Pixel* bitmap_buff, int w, int h, int t);
 
 errcode paint_window(SDL_Window* window, const int t) {
