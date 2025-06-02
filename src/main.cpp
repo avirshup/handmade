@@ -62,7 +62,7 @@ int main() {
     if (SDL_GetTicks64() > next_tick) {
       paint_window(window, frame_num++);
 
-      if (play_square_wave(tone_hz, 20) == 0) {
+      if (queue_square_wave(tone_hz, 20) == 0) {
         // update tone
         tone_hz = tone_hz > 900 ? 30 : tone_hz + 1;
       };
