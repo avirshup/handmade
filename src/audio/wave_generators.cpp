@@ -1,15 +1,20 @@
 #include "wave_generators.h"
-#include <cmath>
 #include <iostream>
 #include <limits>
 #include "./constants.h"
-
 /*******************
   Phaser class impl
 *******************/
 Phaser::Phaser(const unsigned period_ticks) : m_period(period_ticks) {}
 
 unsigned Phaser::next() {
+  // TODO: is using integer periods a problem?
+  //  Q: Will these discrete periods cause tone aliasing?
+  //  1. At high frequencies: might be an issue in theory, if we're anywhere
+  //     near the nyquist frequency - but practically I think we're well below
+  //     that?
+  //  2. At low frequencies: no problems, we have lots of
+  //    period-domain resolution there.
   m_phase %= m_period;
   return m_phase++;
 }
@@ -37,7 +42,9 @@ void Phaser::set_period(const unsigned new_period) {
 /*******************
   SineWaveGenerator class impl
 *******************/
-SineWaveGenerator::SineWaveGenerator(const unsigned period_ticks, const float volume)
+SineWaveGenerator::SineWaveGenerator(
+    const unsigned period_ticks,
+    const float volume)
     : IWaveGenerator(volume), phaser(Phaser(period_ticks)) {
   m_phase_factor = _calc_phase_factor();
 }
@@ -61,7 +68,9 @@ float SineWaveGenerator::_calc_phase_factor() const {
 /*******************
   SquareWaveGenerator class impl
 *******************/
-SquareWaveGenerator::SquareWaveGenerator(const unsigned period_ticks, const float volume)
+SquareWaveGenerator::SquareWaveGenerator(
+    const unsigned period_ticks,
+    const float volume)
     : IWaveGenerator(volume), phaser(Phaser(period_ticks)) {
   m_duty_subperiod = _calc_duty_period();
 }
