@@ -1,112 +1,117 @@
 #include <math.h>
 #include <iostream>
 
-class Phased {
- protected:
-  unsigned phase_ = 0;
-  unsigned period_;
+class Phaser {
+  unsigned m_phase = 0;
+  unsigned m_period;
 
  public:
-  explicit Phased(const unsigned period_ticks) : period_(period_ticks) {}
+  explicit Phaser(const unsigned period_ticks) : m_period(period_ticks) {}
 
   unsigned next() {
-    phase_ %= period_;
-    return phase_++;
+    m_phase %= m_period;
+    return m_phase++;
   }
 
-  unsigned get_phase() const { return phase_; }
+  /*** phase accessors ***/
+  // This could also be called "peek"
+  unsigned get_phase() const { return m_phase; }
 
-  void set_phase(const unsigned new_phase) { phase_ = new_phase; }
+  void set_phase(const unsigned new_phase) { m_phase = new_phase; }
 
-  unsigned get_period() const { return period_; }
+  /*** period accessors ***/
+  unsigned get_period() const { return m_period; }
 
   void set_period(const unsigned new_period) {
     if (new_period == 0)
       throw std::invalid_argument("Period must be greater than 0");
 
-    phase_ = phase_ * new_period / period_;
-    period_ = new_period;
+    m_phase = m_phase * new_period / m_period;
+    m_period = new_period;
   }
 };
 
-// FIXME: I had the sine wave generators inherit from Phased because
-//   I wanted to learn how inheritance works in C++, not because it
-//   makes any sense at all; replace this with
-//   with composition and/or virtual interfaces.
-
-class SineWaveGenerator : public Phased {
+class SineWaveGenerator {
  public:
+  Phaser phaser;
+
   explicit SineWaveGenerator(const unsigned period_ticks, const int32_t volume)
-      : Phased(period_ticks), volume_(volume) {
-    _phase_factor = _calc_phase_factor();
+      : phaser(Phaser(period_ticks)), m_volume(volume) {
+    m_phase_factor = _calc_phase_factor();
   }
 
   int32_t next() {
-    const auto phase = Phased::next();
-    return static_cast<int32_t>(volume_ * sin(_phase_factor * phase));
+    const auto phase = this->phaser.next();
+    return static_cast<int32_t>(m_volume * sin(m_phase_factor * phase));
   }
 
-  void set_volume(const int32_t volume) { volume_ = volume; }
+  void set_volume(const int32_t volume) { m_volume = volume; }
 
   void set_period(const unsigned new_period) {
-    Phased::set_period(new_period);
-    _phase_factor = _calc_phase_factor();
+    this->phaser.set_period(new_period);
+    m_phase_factor = _calc_phase_factor();
   }
 
-  int32_t get_volume() const { return volume_; }
+  int32_t get_volume() const { return m_volume; }
 
  private:
-  int32_t volume_;
-  float _phase_factor;
+  int32_t m_volume;
+  float m_phase_factor;
 
   unsigned _calc_phase_factor() const {
-    return static_cast<unsigned>(M_PI * period_);
+    return static_cast<unsigned>(M_PI * this->phaser.get_period());
   }
 };
 
-class SquareWaveGenerator : public Phased {
+class SquareWaveGenerator {
+  int32_t m_volume;
+  float duty_cycle_ = 0.5;
+  unsigned m_duty_subperiod;
+
  public:
+  Phaser phaser;
+
   SquareWaveGenerator(const unsigned period_ticks, const int32_t volume)
-      : Phased(period_ticks), volume_(volume) {
-    _duty_ticks = _calc_duty_ticks();
+      : m_volume(volume), phaser(Phaser(period_ticks)) {
+    m_duty_subperiod = _calc_duty_period();
   }
   SquareWaveGenerator(
       const unsigned period_ticks,
       const int32_t volume,
       const float duty_cycle)
-      : Phased(period_ticks), volume_(volume), duty_cycle_(duty_cycle) {
-    _duty_ticks = _calc_duty_ticks();
+      : m_volume(volume),
+        duty_cycle_(duty_cycle),
+        phaser(Phaser(period_ticks)) {
+    m_duty_subperiod = _calc_duty_period();
   }
 
   int32_t next() {
-    const auto phase = Phased::next();
-    return phase < _duty_ticks ? volume_ : -volume_;
+    const auto phase = this->phaser.next();
+    return phase < m_duty_subperiod ? m_volume : -m_volume;
   };
 
-  float duty_cycle() const { return duty_cycle_; }
+  /*** duty cycle accessors ***/
+  float get_duty_cycle() const { return m_duty_subperiod; }
 
   void set_duty_cycle(const float new_duty_cycle) {
     if (new_duty_cycle < 0.0 || new_duty_cycle > 1.0)
       throw std::invalid_argument("Duty cycle must be in [0,1].");
     duty_cycle_ = new_duty_cycle;
-    _duty_ticks = _calc_duty_ticks();
+    m_duty_subperiod = _calc_duty_period();
   }
 
   void set_period(const unsigned new_period) {
-    Phased::set_period(new_period);
-    _duty_ticks = _calc_duty_ticks();
+    this->phaser.set_period(new_period);
+    m_duty_subperiod = _calc_duty_period();
   }
 
-  void set_volume(const int32_t volume) { volume_ = volume; }
+  void set_volume(const int32_t volume) { m_volume = volume; }
 
-  int32_t get_volume() const { return volume_; }
+  int32_t get_volume() const { return m_volume; }
 
  private:
-  int32_t volume_;
-  float duty_cycle_ = 0.5;
-  unsigned _duty_ticks;
-
-  unsigned _calc_duty_ticks() const {
-    return static_cast<unsigned>(duty_cycle_ * static_cast<float>(period_));
+  unsigned _calc_duty_period() const {
+    return static_cast<unsigned>(
+        duty_cycle_ * static_cast<float>(this->phaser.get_period()));
   }
 };
