@@ -5,21 +5,21 @@
 
 using namespace std;
 
-// FIXME state in global vars
-global_var SDL_AudioDeviceID DEVICE_ID = 0;
-global_var SDL_AudioSpec AUDIO_SPEC = {};  // <- actual reported spec after init
+// TODO: should this live in the state object?
 global_var vector<Sample> BUFFER = {};
-global_var SineWaveGenerator sine_gen = SineWaveGenerator(1024, 0.5);
-global_var SquareWaveGenerator square_gen = SquareWaveGenerator(1024, 0.5);
 
-void pause_audio(const bool pause) {
-  SDL_PauseAudioDevice(DEVICE_ID, pause ? 1 : 0);
+void pause_audio(AudioState* state, const bool pause) {
+  SDL_PauseAudioDevice(state->device_id, pause ? 1 : 0);
+  state->paused = pause;
 }
 
 /// Note the implementation here is actually generic over the IWaveGenerator
 /// interface, just need to wire it up to accept one.
-errcode queue_square_wave(const float tone_hz, const unsigned duration_ms) {
-  if (SDL_GetQueuedAudioSize(DEVICE_ID) / BYTES_PER_MS + duration_ms >
+errcode queue_square_wave(
+    AudioState* state,
+    const float tone_hz,
+    const unsigned duration_ms) {
+  if (SDL_GetQueuedAudioSize(state->device_id) / BYTES_PER_MS + duration_ms >
       MAX_QUEUED_AUDIO_MS) {
     return 1;
   }
@@ -39,29 +39,30 @@ errcode queue_square_wave(const float tone_hz, const unsigned duration_ms) {
 
     // note generator period is in audio frames
     const auto tone_period = static_cast<unsigned>(SAMPLE_RATE_HZ / tone_hz);
-    square_gen.set_period(tone_period);
+    state->square_gen1.set_period(tone_period);
 
     for (int idx = 0; idx < num_frames; ++idx) {
-      const auto amp = square_gen.next();
+      const auto amp = state->square_gen1.next();
       for (int ic = 0; ic < NCHANNELS; ++ic) {
         BUFFER[NCHANNELS * idx + ic] = amp;
       }
     };
 
-    const auto nbytes = num_frames * BYTES_PER_FRAME;
-    if (const errcode err = queue_audio(BUFFER.data(), nbytes); err != 0) {
+    if (const errcode err =
+            queue_audio(state, BUFFER.data(), num_frames * BYTES_PER_FRAME);
+        err != 0) {
       spdlog::error("Audio queuing issues: {}", SDL_GetError());
     }
   }
   return 0;
 }
 
-errcode queue_audio(const void* data, const size_t nbytes) {
-  CHECK_SDL_ERR(SDL_QueueAudio(DEVICE_ID, data, nbytes));
+errcode queue_audio(AudioState* state, const void* data, const size_t nbytes) {
+  CHECK_SDL_ERR(SDL_QueueAudio(state->device_id, data, nbytes));
   return 0;
 }
 
-errcode init_audio() {
+AudioState init_audio() {
   constexpr SDL_AudioSpec spec = {
       .freq = SAMPLE_RATE_HZ,
       .format = AUDIO_FORMAT,
@@ -69,18 +70,23 @@ errcode init_audio() {
       .samples = NUM_SDL_AUDIO_BUFFER_FRAMES,
       .callback = nullptr};
 
-  DEVICE_ID = SDL_OpenAudioDevice(nullptr, 0, &spec, &AUDIO_SPEC, 0);
+  SDL_AudioSpec actual_spec = {};
+
+  const auto device_id =
+      SDL_OpenAudioDevice(nullptr, 0, &spec, &actual_spec, 0);
 
   printf(
       "Initialised Audio: %d Hz, %d Channels\n",
-      AUDIO_SPEC.freq,
-      AUDIO_SPEC.channels);
+      actual_spec.freq,
+      actual_spec.channels);
 
-  assert(AUDIO_SPEC.format == AUDIO_FORMAT);
+  assert(actual_spec.format == AUDIO_FORMAT);
+
+  auto state = AudioState{.device_id = device_id, .audio_spec = actual_spec};
 
   // allocate our buffer now
   BUFFER.resize(AUDIO_BUFFER_SAMPLES);
-  pause_audio(false);
+  pause_audio(&state, false);
 
-  return 0;
+  return state;
 }

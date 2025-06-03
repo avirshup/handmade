@@ -11,8 +11,11 @@
 #define local_persistent static
 #define global_var static
 
+typedef int16_t Sample;
+
 typedef int errcode;
 typedef uint8_t uint8;
+typedef Uint64 u64;
 
 #define CHECK_SDL_ERR(expr)                                         \
   do {                                                              \

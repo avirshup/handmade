@@ -2,6 +2,8 @@
 #define EVENTS_H
 
 #include "./common.h"
-bool handle_event(const SDL_Event* event);
+#include "./state.h"
+
+void handle_event(GameState* state, const SDL_Event* event);
 
 #endif  // EVENTS_H

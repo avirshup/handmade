@@ -1,14 +1,15 @@
 #include "./events.h"
 #include "./common.h"
 #include "./inputs.h"
+#include "./state.h"
 
 // Event: https://wiki.libsdl.org/SDL2/SDL_Event
-bool handle_event(const SDL_Event* event) {
+void handle_event(GameState* state, const SDL_Event* event) {
   /* Returns true if it should quit */
   switch (event->type) {
     case SDL_QUIT: {
       printf("Got SDL_QUIT\n");
-      return true;
+      state->should_quit = true;
     } break;
 
     // --- input events
@@ -16,6 +17,8 @@ bool handle_event(const SDL_Event* event) {
     case SDL_KEYDOWN:
     case SDL_KEYUP: {
       keyboard_key(
+          &state->input,
+          &state->world,
           event->key.keysym,
           event->key.state,
           event->key.repeat);  // SDL_KeyboardEvent
@@ -23,13 +26,19 @@ bool handle_event(const SDL_Event* event) {
 
     // controller (starts at 0x650)
     case SDL_CONTROLLERDEVICEADDED: {
-      add_controller(event->cdevice.which);  // SDL_ControllerDeviceEvent
+      add_controller(
+          &state->input,
+          event->cdevice.which);  // SDL_ControllerDeviceEvent
     } break;
     case SDL_CONTROLLERDEVICEREMOVED: {
-      remove_controller(event->cdevice.which);  // SDL_ControllerDeviceEvent
+      remove_controller(
+          &state->input,
+          event->cdevice.which);  // SDL_ControllerDeviceEvent
     } break;
     case SDL_CONTROLLERAXISMOTION: {
       controller_axis(
+          &state->input,
+          &state->world,
           event->caxis.which,
           static_cast<SDL_GameControllerAxis>(event->caxis.axis),
           event->caxis.value);  // SDL_ControllerAxisMotion
@@ -37,6 +46,8 @@ bool handle_event(const SDL_Event* event) {
     case SDL_CONTROLLERBUTTONDOWN:
     case SDL_CONTROLLERBUTTONUP: {
       controller_button(
+          &state->input,
+          &state->world,
           event->button.which,
           static_cast<SDL_GameControllerButton>(event->button.button),
           event->button.state);
@@ -65,7 +76,7 @@ bool handle_event(const SDL_Event* event) {
 
         case SDL_WINDOWEVENT_CLOSE: {
           spdlog::info("Window closed, will quit: {}", event->window.event);
-          return true;
+          state->should_quit = true;
         } break;
 
         default: {
@@ -78,5 +89,4 @@ bool handle_event(const SDL_Event* event) {
       // printf("Unhandled: %d", event->type);
     } break;
   }
-  return false;
 }

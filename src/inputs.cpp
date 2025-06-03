@@ -3,34 +3,37 @@
 #include <optional>
 #include <unordered_map>
 #include "./common.h"
-
-#define MAX_PLAYERS 8
+#include "state.h"
 
 using namespace std;
 
-typedef int ControllerId;
+InputState init_input() {
+  return InputState{};
+}
 
-typedef struct GPad {
-  SDL_JoystickID jid;
-  ControllerId cid;
-  SDL_GameController* handle;
-} GPad;
-
-// TODO: not global vars, COME ON
-global_var unordered_map<SDL_JoystickID, GPad> GPAD_MAP;
-global_var ControllerId next_controller_id;
-
-internal auto get_gpad(const SDL_JoystickID jid)
+internal auto get_gpad(InputState* state, const SDL_JoystickID jid)
     -> optional<reference_wrapper<GPad>> {
-  if (const auto it = GPAD_MAP.find(jid); it != GPAD_MAP.end()) {
+  if (const auto it = state->gamepads.find(jid); it != state->gamepads.end()) {
     return ref(it->second);  // wrap the reference
   }
   return nullopt;
 }
 
 /***** Input events ******/
-errcode
-keyboard_key(const SDL_Keysym key, const InputId pressed, const bool repeat) {
+errcode keyboard_key(
+    InputState* state,
+    WorldState* world,
+    const SDL_Keysym key,
+    const InputId pressed,
+    const bool repeat) {
+  // Q: How do we sync input with the world's update loop?
+  // A: Let's try *registering intentions* in the world, then
+  //    processing them during an update loop.
+  // Q: but isn't that just creating another event system on top
+  //    of SDL's?
+  // A: Kinda, but I think this is a necessary layer to translate
+  //    raw input into domain events
+
   if (pressed == SDL_PRESSED) {
     printf("Key '%d' pressed (repeat=%d)\n", key.sym, repeat);
   } else {
@@ -41,10 +44,12 @@ keyboard_key(const SDL_Keysym key, const InputId pressed, const bool repeat) {
 };
 
 errcode controller_button(
+    InputState* state,
+    WorldState* world,
     const SDL_JoystickID jid,
     const SDL_GameControllerButton button,
     const Uint8 pressed) {
-  const auto gpad = get_gpad(jid);
+  const auto gpad = get_gpad(state, jid);
   if (!gpad)
     return 1;
 
@@ -58,11 +63,14 @@ errcode controller_button(
 }
 
 errcode controller_axis(
+    InputState* state,
+    WorldState* world,
+
     const SDL_JoystickID jid,
     const SDL_GameControllerAxis axis,
     const Sint32 value) {
-  const auto it_gpad = GPAD_MAP.find(jid);
-  if (it_gpad == GPAD_MAP.end()) {
+  const auto it_gpad = state->gamepads.find(jid);
+  if (it_gpad == state->gamepads.end()) {
     printf("Got unknown controller event for jid %d", jid);
     return 1;
   }
@@ -74,12 +82,12 @@ errcode controller_axis(
 }
 
 /***** Device events ******/
-errcode add_controller(const SDL_JoystickID jid) {
-  assert(!GPAD_MAP.contains(jid));
+errcode add_controller(InputState* state, const SDL_JoystickID jid) {
+  assert(!state->gamepads.contains(jid));
 
-  const ControllerId cid = next_controller_id++;
+  const ControllerId cid = state->next_controller_id++;
   printf("New controller, ID %d", cid);
-  GPAD_MAP[jid] = GPad{
+  state->gamepads[jid] = GPad{
       .jid = jid,
       .cid = cid,
       .handle = SDL_GameControllerOpen(jid),
@@ -88,16 +96,16 @@ errcode add_controller(const SDL_JoystickID jid) {
   return 0;
 }
 
-errcode remove_controller(const SDL_JoystickID jid) {
-  const auto gpad = get_gpad(jid);
+errcode remove_controller(InputState* state, const SDL_JoystickID jid) {
+  const auto gpad = get_gpad(state, jid);
   if (!gpad)
     return 1;
 
   // TODO: really not sure about how memory safety works here!!!
-  const GPad old_gpad = move(gpad->get());
+  const GPad old_gpad = gpad->get();
   printf("Removed controller ID %d", old_gpad.cid);
 
   SDL_GameControllerClose(old_gpad.handle);
-  GPAD_MAP.erase(jid);
+  state->gamepads.erase(jid);
   return 0;
 }

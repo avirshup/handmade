@@ -6,8 +6,6 @@
 /***** Hardcoded audio settings *****/
 /* Note "frame" here means an *audio* frame, i.e., 48000 "frames" per second */
 
-typedef int16_t Sample;
-
 // signed, 16-bit, little endian -- https://wiki.libsdl.org/SDL2/SDL_AudioFormat
 constexpr SDL_AudioFormat AUDIO_FORMAT = AUDIO_S16LSB;
 constexpr auto SAMPLE_RATE_KHZ = 48;

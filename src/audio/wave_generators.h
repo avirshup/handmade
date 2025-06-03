@@ -27,9 +27,9 @@ class IWaveGenerator {
 class Phaser {
  public:
   explicit Phaser(const unsigned period_ticks);
-  
+
   unsigned next();
-  
+
   [[nodiscard]] unsigned get_phase() const;
   void set_phase(const unsigned new_phase);
 
