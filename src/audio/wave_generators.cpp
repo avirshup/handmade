@@ -4,113 +4,104 @@
 #include <limits>
 #include "./constants.h"
 
-class Phaser {
-  unsigned m_phase = 0;
-  unsigned m_period;
+/*******************
+  Phaser class impl
+*******************/
+Phaser::Phaser(const unsigned period_ticks) : m_period(period_ticks) {}
 
- public:
-  explicit Phaser(const unsigned period_ticks) : m_period(period_ticks) {}
+unsigned Phaser::next() {
+  m_phase %= m_period;
+  return m_phase++;
+}
 
-  unsigned next() {
-    m_phase %= m_period;
-    return m_phase++;
-  }
+[[nodiscard]] unsigned Phaser::get_phase() const {
+  return m_phase;
+}
 
-  /*** phase accessors ***/
-  // This could also be called "peek"
-  [[nodiscard]] unsigned get_phase() const { return m_phase; }
+void Phaser::set_phase(const unsigned new_phase) {
+  m_phase = new_phase;
+}
 
-  void set_phase(const unsigned new_phase) { m_phase = new_phase; }
+[[nodiscard]] unsigned Phaser::get_period() const {
+  return m_period;
+}
 
-  /*** period accessors ***/
-  [[nodiscard]] unsigned get_period() const { return m_period; }
+void Phaser::set_period(const unsigned new_period) {
+  if (new_period == 0)
+    throw std::invalid_argument("Period must be greater than 0");
 
-  void set_period(const unsigned new_period) {
-    if (new_period == 0)
-      throw std::invalid_argument("Period must be greater than 0");
+  m_phase = m_phase * new_period / m_period;
+  m_period = new_period;
+}
 
-    m_phase = m_phase * new_period / m_period;
-    m_period = new_period;
-  }
-};
+/*******************
+  SineWaveGenerator class impl
+*******************/
+SineWaveGenerator::SineWaveGenerator(const unsigned period_ticks, const float volume)
+    : IWaveGenerator(volume), phaser(Phaser(period_ticks)) {
+  m_phase_factor = _calc_phase_factor();
+}
 
-class SineWaveGenerator final : public IWaveGenerator {
- public:
-  Phaser phaser;
+Sample SineWaveGenerator::next() {
+  const auto phase = this->phaser.next();
+  return static_cast<Sample>(
+      m_volume * std::numeric_limits<Sample>::max() *
+      sin(m_phase_factor * static_cast<float>(phase)));
+}
 
-  explicit SineWaveGenerator(const unsigned period_ticks, const float volume)
-      : IWaveGenerator(volume), phaser(Phaser(period_ticks)) {
-    m_phase_factor = _calc_phase_factor();
-  }
+void SineWaveGenerator::set_period(const unsigned new_period) {
+  this->phaser.set_period(new_period);
+  m_phase_factor = _calc_phase_factor();
+}
 
-  Sample next() override {
-    const auto phase = this->phaser.next();
-    return static_cast<Sample>(
-        m_volume * std::numeric_limits<Sample>::max() *
-        sin(m_phase_factor * static_cast<float>(phase)));
-  }
+float SineWaveGenerator::_calc_phase_factor() const {
+  return M_PI * this->phaser.get_period();
+}
 
-  void set_period(const unsigned new_period) override {
-    this->phaser.set_period(new_period);
-    m_phase_factor = _calc_phase_factor();
-  }
+/*******************
+  SquareWaveGenerator class impl
+*******************/
+SquareWaveGenerator::SquareWaveGenerator(const unsigned period_ticks, const float volume)
+    : IWaveGenerator(volume), phaser(Phaser(period_ticks)) {
+  m_duty_subperiod = _calc_duty_period();
+}
 
- private:
-  float m_phase_factor;
+SquareWaveGenerator::SquareWaveGenerator(
+    const unsigned period_ticks,
+    const float volume,
+    const float duty_cycle)
+    : IWaveGenerator(volume),
+      duty_cycle_(duty_cycle),
+      phaser(Phaser(period_ticks)) {
+  m_duty_subperiod = _calc_duty_period();
+}
 
-  [[nodiscard]] float _calc_phase_factor() const {
-    return M_PI * this->phaser.get_period();
-  }
-};
+Sample SquareWaveGenerator::next() {
+  const auto phase = this->phaser.next();
+  return phase < m_duty_subperiod
+             ? static_cast<Sample>(
+                   m_volume * std::numeric_limits<Sample>::max())
+             : static_cast<Sample>(
+                   m_volume * std::numeric_limits<Sample>::min());
+}
 
-class SquareWaveGenerator final : public IWaveGenerator {
-  float duty_cycle_ = 0.5;
-  unsigned m_duty_subperiod;
+void SquareWaveGenerator::set_period(const unsigned new_period) {
+  this->phaser.set_period(new_period);
+  m_duty_subperiod = _calc_duty_period();
+}
 
- public:
-  Phaser phaser;
+[[nodiscard]] float SquareWaveGenerator::get_duty_cycle() const {
+  return duty_cycle_;
+}
 
-  SquareWaveGenerator(const unsigned period_ticks, const float volume)
-      : IWaveGenerator(volume), phaser(Phaser(period_ticks)) {
-    m_duty_subperiod = _calc_duty_period();
-  }
-  SquareWaveGenerator(
-      const unsigned period_ticks,
-      const float volume,
-      const float duty_cycle)
-      : IWaveGenerator(volume),
-        duty_cycle_(duty_cycle),
-        phaser(Phaser(period_ticks)) {
-    m_duty_subperiod = _calc_duty_period();
-  }
+void SquareWaveGenerator::set_duty_cycle(const float new_duty_cycle) {
+  if (new_duty_cycle < 0.0 || new_duty_cycle > 1.0)
+    throw std::invalid_argument("Duty cycle must be in [0,1].");
+  duty_cycle_ = new_duty_cycle;
+  m_duty_subperiod = _calc_duty_period();
+}
 
-  Sample next() override {
-    const auto phase = this->phaser.next();
-    return phase < m_duty_subperiod
-               ? static_cast<Sample>(
-                     m_volume * std::numeric_limits<Sample>::max())
-               : static_cast<Sample>(
-                     m_volume * std::numeric_limits<Sample>::min());
-  }
-
-  void set_period(const unsigned new_period) override {
-    this->phaser.set_period(new_period);
-    m_duty_subperiod = _calc_duty_period();
-  }
-
-  /*** duty cycle accessors ***/
-  [[nodiscard]] float get_duty_cycle() const { return duty_cycle_; }
-
-  void set_duty_cycle(const float new_duty_cycle) {
-    if (new_duty_cycle < 0.0 || new_duty_cycle > 1.0)
-      throw std::invalid_argument("Duty cycle must be in [0,1].");
-    duty_cycle_ = new_duty_cycle;
-    m_duty_subperiod = _calc_duty_period();
-  }
-
- private:
-  [[nodiscard]] unsigned _calc_duty_period() const {
-    return static_cast<unsigned>(
-        duty_cycle_ * static_cast<float>(this->phaser.get_period()));
-  }
-};
+unsigned SquareWaveGenerator::_calc_duty_period() const {
+  return static_cast<unsigned>(
+      duty_cycle_ * static_cast<float>(this->phaser.get_period()));
+}
