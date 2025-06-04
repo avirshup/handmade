@@ -10,7 +10,6 @@ find_package(spdlog REQUIRED)
 find_package(glm REQUIRED)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
-
 add_executable(handmade ${SOURCES})
 target_link_libraries(handmade PRIVATE
         SDL2::SDL2
