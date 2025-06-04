@@ -18,6 +18,12 @@ target_link_libraries(handmade PRIVATE
         spdlog::spdlog
         glm::glm)
 
+# Assets in the build
+# TODO: these don't seem to be updated automatically?
+file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
+target_compile_definitions(handmade PRIVATE
+        ASSET_PATH="${CMAKE_BINARY_DIR}/assets")
+
 # # For syncing redraws to screen refresh:
 #if (APPLE)
 #    target_link_libraries(handmade
