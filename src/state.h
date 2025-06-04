@@ -5,6 +5,7 @@
 #include "./audio.h"
 #include "./common.h"
 #include "./inputs.h"
+#include "./perf.h"
 #include "./video.h"
 #include "./world.h"
 
@@ -18,6 +19,7 @@ struct GameState {
   InputState input;
   AudioState audio;
   WorldState world;
+  PerfCounter perf;
 };
 
 #endif  // STATE_H

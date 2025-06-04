@@ -16,6 +16,7 @@ typedef int16_t Sample;
 typedef int errcode;
 typedef uint8_t uint8;
 typedef Uint64 u64;
+typedef Uint64 PCount;
 
 #define CHECK_SDL_ERR(expr)                                         \
   do {                                                              \

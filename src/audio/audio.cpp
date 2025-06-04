@@ -13,6 +13,12 @@ void pause_audio(AudioState* state, const bool pause) {
   state->paused = pause;
 }
 
+// TODO: how do we turn world state into sound?
+//   Does the world_update directly talk to the audio system?
+//   Or does the audio module take the world's state
+//   and decide what to play based on it?
+//   FOR NOW: no decision, just deal w/ it in the main loop
+
 /// Note the implementation here is actually generic over the IWaveGenerator
 /// interface, just need to wire it up to accept one.
 errcode queue_square_wave(

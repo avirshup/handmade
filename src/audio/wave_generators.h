@@ -18,7 +18,7 @@ class IWaveGenerator {
   [[nodiscard]] float get_volume() const;
 
  protected:
-  float m_volume = 0.5;
+  float m_volume = 0.3;
 };
 
 /*******************
@@ -65,7 +65,10 @@ class SquareWaveGenerator final : public IWaveGenerator {
   Phaser phaser;
 
   SquareWaveGenerator(const unsigned period_ticks, const float volume);
-  SquareWaveGenerator(const unsigned period_ticks, const float volume, const float duty_cycle);
+  SquareWaveGenerator(
+      const unsigned period_ticks,
+      const float volume,
+      const float duty_cycle);
   Sample next() override;
   void set_period(const unsigned new_period) override;
 
@@ -77,4 +80,3 @@ class SquareWaveGenerator final : public IWaveGenerator {
   unsigned m_duty_subperiod;
   [[nodiscard]] unsigned _calc_duty_period() const;
 };
-

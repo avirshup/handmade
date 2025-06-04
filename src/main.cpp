@@ -35,14 +35,14 @@ int main() {
   GameState state = {
       .video = init_video(),
       .audio = init_audio(),
-      .input = init_input()};
+      .input = init_input(),
+      .perf = init_perf()};
 
   /* ----- Prep for the loop ----- */
   const auto first_tick = SDL_GetTicks64();
   auto next_draw_tick = first_tick;
   auto next_simulation_tick = first_tick;
   state.world.last_tick_ms = first_tick;
-  float tone_hz = 30;  // TODO: This is a state-ish variable
 
   /* ----- The loop ----- */
   while (true) {
@@ -68,27 +68,28 @@ int main() {
     // (this is extremely hacky framerate limiter
     // https://stackoverflow.com/a/75967125/1958900)
     if (tick >= next_draw_tick) {
-      const auto update_start = SDL_GetPerformanceCounter();
-      paint_window(&state.video, &state.world);  // WHY NOT LINKING?
-      const auto after_paint = SDL_GetPerformanceCounter();
+      MEASURE_PERF(AV, &state.perf, {
+        MEASURE_PERF(
+            PAINT, &state.perf, paint_window(&state.video, &state.world);)
 
-      if (queue_square_wave(&state.audio, tone_hz, 20) == 0) {
-        // update tone
-        tone_hz = tone_hz > 900 ? 30 : tone_hz * 1.005f;
-      };
+        if (queue_square_wave(&state.audio, state.world.tone_hz, 20) == 0) {
+          // update tone
+          state.world.tone_hz =
+              state.world.tone_hz > 900.f ? 30.f : state.world.tone_hz * 1.005f;
+        };
 
-      const auto update_end = SDL_GetPerformanceCounter();
+        next_draw_tick = tick + MS_PER_FRAME;
+        state.frame_num++;
+      })
+
       if (state.frame_num % 120 == 0) {
         spdlog::debug(
             "Timings/ms for frame {}: paint:{:.3f}, "
             "total_update:{:.3f}",
             state.frame_num,
-            perf_to_ms(update_start, after_paint, perf_freq_hz),
-            perf_to_ms(update_start, update_end, perf_freq_hz));
+            last_perf_ms(&state.perf, PAINT),
+            last_perf_ms(&state.perf, AV));
       }
-
-      next_draw_tick = tick + MS_PER_FRAME;
-      state.frame_num++;
     }
   }
 
