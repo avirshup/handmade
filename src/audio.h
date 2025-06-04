@@ -10,8 +10,8 @@ struct AudioState {
   SDL_AudioDeviceID device_id = 0;
   SDL_AudioSpec audio_spec = {};
 
-  SineWaveGenerator sine_gen1 = SineWaveGenerator(1024, 0.5);
-  SquareWaveGenerator square_gen1 = SquareWaveGenerator(1024, 0.5);
+  SineWaveGenerator sine_gen1 = SineWaveGenerator(1024, 0.01);
+  SquareWaveGenerator square_gen1 = SquareWaveGenerator(1024, 0.01);
 };
 
 errcode queue_audio(AudioState* state, const void* data, size_t nbytes);

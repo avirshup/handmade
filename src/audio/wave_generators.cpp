@@ -87,11 +87,9 @@ SquareWaveGenerator::SquareWaveGenerator(
 
 Sample SquareWaveGenerator::next() {
   const auto phase = this->phaser.next();
-  return phase < m_duty_subperiod
-             ? static_cast<Sample>(
-                   m_volume * std::numeric_limits<Sample>::max())
-             : static_cast<Sample>(
-                   m_volume * std::numeric_limits<Sample>::min());
+  return static_cast<Sample>(
+      phase < m_duty_subperiod ? m_volume * std::numeric_limits<Sample>::max()
+                               : m_volume * std::numeric_limits<Sample>::min());
 }
 
 void SquareWaveGenerator::set_period(const unsigned new_period) {

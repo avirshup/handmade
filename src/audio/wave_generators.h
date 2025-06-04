@@ -2,26 +2,6 @@
 #include "./constants.h"
 
 /*******************
-  IWaveGenerator - wave generator interface
-*******************/
-class IWaveGenerator {
- public:
-  virtual ~IWaveGenerator() = default;
-  explicit IWaveGenerator(float const volume) : m_volume(volume) {};
-
-  // virtual functions
-  virtual Sample next() = 0;
-  virtual void set_period(unsigned new_period) = 0;
-
-  // volume interface
-  void set_volume(const float volume) { m_volume = volume; };
-  [[nodiscard]] float get_volume() const;
-
- protected:
-  float m_volume = 0.3;
-};
-
-/*******************
   Phaser class decl
 *******************/
 class Phaser {
@@ -39,6 +19,26 @@ class Phaser {
  private:
   unsigned m_phase = 0;
   unsigned m_period;
+};
+
+/*******************
+  IWaveGenerator - wave generator interface
+*******************/
+class IWaveGenerator {
+ public:
+  virtual ~IWaveGenerator() = default;
+  explicit IWaveGenerator(float const volume) : m_volume(volume) {};
+
+  // virtual functions
+  virtual Sample next() = 0;
+  virtual void set_period(unsigned new_period) = 0;
+
+  // volume interface
+  void set_volume(const float volume) { m_volume = volume; };
+  [[nodiscard]] float get_volume() const;
+
+ protected:
+  float m_volume = 0.005;  // don't use 1.0, it's VERY loud
 };
 
 /*******************
