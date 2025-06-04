@@ -10,7 +10,7 @@ struct WorldState {
   float tone_hz = 30.0;
   glm::vec2 pos{0.0f, 0.0f};
   glm::vec2 vel{0.0f, 0.0f};
-  glm::vec2 user_acc{};
+  glm::vec2 user_intent{};
   glm::vec2 last_acc{};
 };
 

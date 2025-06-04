@@ -1,12 +1,20 @@
 #include "world.h"
 
+using namespace glm;
+
+// all accelerations are in pixels/s^2
+constexpr float MAX_ACCEL = 800.0;
+constexpr float GRAVITY = 400.0;
+
+constexpr float DRAG = 1.0;  // ratio accel to velocity, units of 1/s
+
 WorldState init_world() {
   return WorldState{.last_tick_ms = SDL_GetTicks64()};
 }
 
 /// External force (gravity, friction etc.)
-glm::vec2 external_acc(glm::vec2 pos, glm::vec2 vel) {
-  return glm::vec2{0.f, pos.y > 0.f ? -1 : 1} - 0.1f * vel;
+glm::vec2 external_acc(const glm::vec2 pos, const glm::vec2 vel) {
+  return glm::vec2{0.f, pos.y > 0. ? -GRAVITY : GRAVITY} - DRAG * vel;
 }
 
 void update_world(WorldState* world, const u64 tick_ms) {
@@ -17,8 +25,10 @@ void update_world(WorldState* world, const u64 tick_ms) {
   world->pos += vhalf * dt;
 
   // VV step 2 (new acceleration)
-  world->last_acc = world->user_acc + external_acc(world->pos, world->vel);
-  world->vel += world->vel + 0.5f * world->last_acc * dt;
+  // FIXME: user intent should be clamped to unit circle or less
+  auto user_accel = MAX_ACCEL * world->user_intent;
+  world->last_acc = user_accel + external_acc(world->pos, world->vel);
+  world->vel += 0.5f * world->last_acc * dt;
 
   // advance timers
   world->last_tick_ms = tick_ms;

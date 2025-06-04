@@ -26,44 +26,35 @@ errcode keyboard_key(
     const SDL_Keysym key,
     const InputId pressed,
     const bool repeat) {
+  glm::vec2 new_intent;
 
-  if (pressed == SDL_PRESSED) {
-    spdlog::trace("Key '%d' pressed (repeat=%d)\n", key.sym, repeat);
-    
-    // Handle arrow key presses
-    switch (key.sym) {
-      case SDLK_UP:
-        world->user_acc.y += 1.0f;
-        break;
-      case SDLK_DOWN:
-        world->user_acc.y -= 1.0f;
-        break;
-      case SDLK_LEFT:
-        world->user_acc.x -= 1.0f;
-        break;
-      case SDLK_RIGHT:
-        world->user_acc.x += 1.0f;
-        break;
-    }
-  } else {
-    spdlog::trace("Key '%d' released (repeat=%d)\n", key.sym, repeat);
-    
-    // Handle arrow key releases
-    switch (key.sym) {
-      case SDLK_UP:
-        world->user_acc.y -= 1.0f;
-        break;
-      case SDLK_DOWN:
-        world->user_acc.y += 1.0f;
-        break;
-      case SDLK_LEFT:
-        world->user_acc.x += 1.0f;
-        break;
-      case SDLK_RIGHT:
-        world->user_acc.x -= 1.0f;
-        break;
-    }
+  if (pressed == SDL_PRESSED && repeat) {
+    return 0;
   }
+
+  // TODO: sphere or square? how do we make "↑+→" the same as full
+  //    controller axis deflection to the up and left?
+  switch (key.sym) {
+    case SDLK_UP:
+      new_intent = glm::vec2{0., 1.};
+      break;
+    case SDLK_DOWN:
+      new_intent = glm::vec2{0., -1.};
+      break;
+    case SDLK_LEFT:
+      new_intent = glm::vec2{1., 0.};
+      break;
+    case SDLK_RIGHT:
+      new_intent = glm::vec2{-1., 0.};
+      break;
+    default:
+      break;
+  }
+  if (pressed == SDL_RELEASED) {
+    new_intent *= -1;
+  }
+
+  world->user_intent += new_intent;
 
   return 0;
 };
