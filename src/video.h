@@ -22,9 +22,12 @@ struct VideoState {
   SDL_Window* window;
   SDL_Renderer* renderer;
   ScreenBuffer screen_buffer;
+  TTF_Font* debug_font;
 };
 
 VideoState init_video();
 errcode paint_window(VideoState* video, const WorldState* state);
+errcode
+render_text(VideoState* video, const char* text, int x, int y, SDL_Color color);
 
 #endif  // RENDER_H
