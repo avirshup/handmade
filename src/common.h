@@ -1,11 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <SDL2/SDL.h>
+#include <spdlog/spdlog.h>
 #include <cassert>
 #include <cstdint>
 #include <iostream>
-#include "SDL.h"
-#include "spdlog/spdlog.h"
 
 #define internal static
 #define local_persistent static
