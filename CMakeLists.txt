@@ -6,13 +6,14 @@ set(CMAKE_CXX_STANDARD 23)
 # dependencies
 find_package(SDL2 REQUIRED)
 find_package(spdlog REQUIRED)
+find_package(glm REQUIRED)
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
 
 include_directories(handmade ${SDL2_INCLUDE_DIRS})
 add_executable(handmade ${SOURCES})
-target_link_libraries(handmade PRIVATE ${SDL2_LIBRARIES} spdlog::spdlog)
+target_link_libraries(handmade PRIVATE ${SDL2_LIBRARIES} spdlog::spdlog glm::glm)
 
 # # For syncing redraws to screen refresh:
 #if (APPLE)

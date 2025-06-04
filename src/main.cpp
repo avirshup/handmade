@@ -36,7 +36,8 @@ int main() {
       .video = init_video(),
       .audio = init_audio(),
       .input = init_input(),
-      .perf = init_perf()};
+      .perf = init_perf(),
+      .world = init_world()};
 
   /* ----- Prep for the loop ----- */
   const auto first_tick = SDL_GetTicks64();

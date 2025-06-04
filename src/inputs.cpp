@@ -26,18 +26,43 @@ errcode keyboard_key(
     const SDL_Keysym key,
     const InputId pressed,
     const bool repeat) {
-  // Q: How do we sync input with the world's update loop?
-  // A: Let's try *registering intentions* in the world, then
-  //    processing them during an update loop.
-  // Q: but isn't that just creating another event system on top
-  //    of SDL's?
-  // A: Kinda, but I think this is a necessary layer to translate
-  //    raw input into domain events
 
   if (pressed == SDL_PRESSED) {
-    printf("Key '%d' pressed (repeat=%d)\n", key.sym, repeat);
+    spdlog::trace("Key '%d' pressed (repeat=%d)\n", key.sym, repeat);
+    
+    // Handle arrow key presses
+    switch (key.sym) {
+      case SDLK_UP:
+        world->user_acc.y += 1.0f;
+        break;
+      case SDLK_DOWN:
+        world->user_acc.y -= 1.0f;
+        break;
+      case SDLK_LEFT:
+        world->user_acc.x -= 1.0f;
+        break;
+      case SDLK_RIGHT:
+        world->user_acc.x += 1.0f;
+        break;
+    }
   } else {
-    printf("Key '%d' released (repeat=%d)\n", key.sym, repeat);
+    spdlog::trace("Key '%d' released (repeat=%d)\n", key.sym, repeat);
+    
+    // Handle arrow key releases
+    switch (key.sym) {
+      case SDLK_UP:
+        world->user_acc.y -= 1.0f;
+        break;
+      case SDLK_DOWN:
+        world->user_acc.y += 1.0f;
+        break;
+      case SDLK_LEFT:
+        world->user_acc.x += 1.0f;
+        break;
+      case SDLK_RIGHT:
+        world->user_acc.x -= 1.0f;
+        break;
+    }
   }
 
   return 0;

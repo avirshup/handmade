@@ -4,20 +4,22 @@
 /**** PRIVATE functions (public are below) ****/
 
 internal void paint_weird_gradient(
+    const WorldState* world,
     Pixel* bitmap_buff,
     const int w,
-    const int h,
-    const double t) {
+    const int h) {
   // Q: why looping _and_ incrementing the pointers at the same time???
   // A: because later the layout will be more complicated AIUI?
   Pixel* row = bitmap_buff;
   for (int y = 0; y < h; y++) {
     Pixel* pixel = row;
     for (int x = 0; x < w; x++) {
+      const auto x_off = x - static_cast<int>(world->pos.x);
+      const auto y_off = y - static_cast<int>(world->pos.y);
       *pixel = {
-          .r = static_cast<uint8>(3 + x + t),
-          .b = static_cast<uint8>(5 + y + 2 * t),
-          .g = static_cast<uint8>(y + x + 13 + 3 * t)};
+          .r = static_cast<uint8>(3 + x_off),
+          .b = static_cast<uint8>(5 + y_off),
+          .g = static_cast<uint8>(x_off + y_off + 13)};
       ++pixel;
     }
     row += w;
@@ -95,7 +97,7 @@ errcode paint_window(VideoState* video, const WorldState* world) {
 
   // blit the texture
   // for these APIs, a null rect pointer means "the whole thing"
-  paint_weird_gradient(buffer->pixel_buff, w, h, world->time_s);
+  paint_weird_gradient(world, buffer->pixel_buff, w, h);
   CHECK_SDL_ERR(SDL_UpdateTexture(
       buffer->texture,
       nullptr,
