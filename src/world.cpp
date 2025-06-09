@@ -13,15 +13,15 @@ WorldState init_world() {
 }
 
 /// External force (gravity, friction etc.)
-glm::vec2 external_acc(const glm::vec2 pos, const glm::vec2 vel) {
-  return glm::vec2{0.f, pos.y > 0. ? -GRAVITY : GRAVITY} - DRAG * vel;
+vec2 external_acc(const vec2 pos, const vec2 vel) {
+  return vec2{0.f, pos.y > 0. ? -GRAVITY : GRAVITY} - DRAG * vel;
 }
 
 void update_world(WorldState* world, const u64 tick_ms) {
-  const float dt = (tick_ms - world->last_tick_ms) / 1000.0;
+  const float dt = static_cast<float>(tick_ms - world->last_tick_ms) / 1000.0f;
 
   // VV step 1 (old acceleration)
-  const glm::vec2 vhalf = world->vel + 0.5f * dt * world->last_acc;
+  const vec2 vhalf = world->vel + 0.5f * dt * world->last_acc;
   world->pos += vhalf * dt;
 
   // VV step 2 (new acceleration)
