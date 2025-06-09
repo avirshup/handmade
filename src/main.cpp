@@ -1,6 +1,7 @@
 #include "./audio.h"
 #include "./common.h"
 #include "./events.h"
+#include "./memory.h"
 #include "./state.h"
 #include "./util.h"
 #include "./video.h"
@@ -32,6 +33,15 @@ int main() {
   auto perf_freq_hz = SDL_GetPerformanceFrequency();
   spdlog::debug("Perf freq: {}", perf_freq_hz);
 
+#ifndef RELEASE
+  spdlog::info("Running in DEV mode");
+  void* base_address = reinterpret_cast<void*>(TiB(4));
+#else
+  void* base_address = nullptr;
+#endif
+
+  auto mem = init_memory(MiB(64), GiB(2), base_address);
+
   GameState state = {
       .video = init_video(),
       .audio = init_audio(),
@@ -46,9 +56,8 @@ int main() {
   state.world.last_tick_ms = first_tick;
 
   /* ----- The loop ----- */
+  SDL_Event event = {};
   while (true) {
-    SDL_Event event = {};
-
     // 1) handle events
     while (SDL_PollEvent(&event)) {
       handle_event(&state, &event);

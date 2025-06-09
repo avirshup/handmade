@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.31)
 project(handmade)
 
 set(CMAKE_CXX_STANDARD 23)
+#set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DDEBUG_MODE=1")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DRELEASE=1")
 
 # dependencies
 find_package(SDL2 REQUIRED)

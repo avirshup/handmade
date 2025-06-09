@@ -11,6 +11,11 @@
 #define local_persistent static
 #define global_var static
 
+#define KiB(bytes) (1024LL * bytes)
+#define MiB(bytes) (1024LL * KiB(bytes))
+#define GiB(bytes) (1024LL * MiB(bytes))
+#define TiB(bytes) (1024LL * GiB(bytes))
+
 typedef int16_t Sample;
 
 typedef int errcode;
