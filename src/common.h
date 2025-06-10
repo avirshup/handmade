@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <iostream>
 
-#define internal static
+#define internalfn static
 #define local_persistent static
 #define global_var static
 

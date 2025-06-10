@@ -9,7 +9,7 @@ constexpr SDL_Color C_BLACK = {0, 0, 0, 255};
 
 /**** PRIVATE functions (public are below) ****/
 
-internal void paint_weird_gradient(
+internalfn void paint_weird_gradient(
     const world::WorldState* world,
     video::Pixel* bitmap_buff,
     const int w,
@@ -32,7 +32,7 @@ internal void paint_weird_gradient(
   }
 }
 
-internal errcode resize_buffer(
+internalfn errcode resize_buffer(
     SDL_Renderer* renderer,
     video::ScreenBuffer* buffer,
     const int w,

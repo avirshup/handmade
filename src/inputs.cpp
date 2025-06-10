@@ -7,7 +7,7 @@
 
 using namespace std;
 
-internal auto get_gpad(inputs::InputState* state, const SDL_JoystickID jid)
+internalfn auto get_gpad(inputs::InputState* state, const SDL_JoystickID jid)
     -> optional<reference_wrapper<inputs::GPad>> {
   if (const auto it = state->gamepads.find(jid); it != state->gamepads.end()) {
     return ref(it->second);  // wrap the reference
