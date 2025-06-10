@@ -5,7 +5,16 @@
 
 using namespace std;
 
-// TODO: should this live in the state object?
+// TODO: play more than 1 sound at once. Maybe: mix our own buffer
+//   before queuing, use SDL_audiomixer, implement our own ring buffer?
+//   DECISION: use a ring buffer. Why not SDL_Mixer? Because no more
+//   dependencies. Why not mix before queuing? Because it's actually harder
+//   than maintaining our ring buffer, PLUS it's more likely to give us
+//   audio dropouts if stuff slows down for whatever reason, PLUS mixing
+//   audio of different durations becomes intensely complicated.
+//   see: https://ericscrivner.me/2017/10/getting-circular-sdl-audio/
+
+// TODO: this will turn into our ring buffer
 global_var vector<Sample> BUFFER = {};
 
 void pause_audio(AudioState* state, const bool pause) {

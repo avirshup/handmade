@@ -69,6 +69,10 @@ int main() {
   /* ----- The loop ----- */
   SDL_Event event = {};
   while (true) {
+    // TODO: when nothing is happening, this is a busy wait loop, which seems
+    //   silly. Can we do a _blocking_ poll of SDL events w/ a timeout?
+    //   If not, need to use SDL_Delay or callback scheduling
+
     // 1) handle events
     while (SDL_PollEvent(&event)) {
       handle_event(&state, &event);
