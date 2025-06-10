@@ -2,6 +2,7 @@
 #include "./common.h"
 #include "./events.h"
 #include "./memory.h"
+#include "./resources.h"
 #include "./state.h"
 #include "./util.h"
 #include "./video.h"
@@ -41,6 +42,16 @@ int main() {
 #endif
 
   auto mem = init_memory(MiB(64), GiB(2), base_address);
+
+  // TODO: sure would be nice for this to be a test
+  // // Debugging, deleteme
+  // const auto datafile = locate_asset("somedata");
+  // auto npbytes = mem.persistent_bytes;
+  // auto ntbytes = mem.transient_bytes;
+  // const auto file1 = read_into_memory(datafile, &mem.persistent_ptr,
+  // &npbytes); const auto file2 = read_into_memory(datafile,
+  // &mem.transient_ptr, &ntbytes); spdlog::critical("delete this");
+  // // debugging, deleteme
 
   GameState state = {
       .video = init_video(),

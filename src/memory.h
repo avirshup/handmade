@@ -5,10 +5,12 @@
 
 struct GameMemory {
   u64 persistent_bytes;
-  void* persistent;
+  void* persistent_start;
+  void* persistent_ptr;
 
   u64 transient_bytes;
-  void* transient;
+  void* transient_start;
+  void* transient_ptr;
 };
 
 GameMemory init_memory(

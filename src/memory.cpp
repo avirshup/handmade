@@ -22,9 +22,12 @@ GameMemory init_memory(
 
   return GameMemory{
       .persistent_bytes = persistent_bytes,
-      .persistent = mem_block,
+      .persistent_start = mem_block,
+      .persistent_ptr = mem_block,
 
       .transient_bytes = transient_bytes,
-      .transient = transient_ptr,
+      .transient_start = transient_ptr,
+      .transient_ptr = transient_ptr,
+
   };
 }
