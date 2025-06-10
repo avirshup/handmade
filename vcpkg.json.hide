@@ -18,6 +18,10 @@
     {
       "name": "glm",
       "version>=": "1.0.1"
-    }
+    },
+    {
+      "name": "gtest",
+      "version>=": "1.17.0"
+    },
   ]
 } 

@@ -43,16 +43,6 @@ int main() {
 
   auto mem = memory::init_memory(MiB(64), GiB(2), base_address);
 
-  // TODO: sure would be nice for this to be a test
-  // // Debugging, deleteme
-  // const auto datafile = resources::locate_asset("somedata");
-  // auto npbytes = mem.persistent_bytes;
-  // auto ntbytes = mem.transient_bytes;
-  // const auto file1 = read_into_memory(datafile, &mem.persistent_ptr,
-  // &npbytes); const auto file2 = read_into_memory(datafile,
-  // &mem.transient_ptr, &ntbytes); spdlog::critical("delete this");
-  // // debugging, deleteme
-
   state::GameState state = {
       .video = video::init_video(),
       .audio = audio::init_audio(),
