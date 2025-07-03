@@ -4,6 +4,8 @@
 #include "./audio/wave_generators.h"
 #include "./common.h"
 
+namespace audio {
+
 struct AudioState {
   bool paused = false;
 
@@ -18,5 +20,6 @@ errcode queue_audio(AudioState* state, const void* data, size_t nbytes);
 void pause_audio(AudioState* state, bool pause);
 AudioState init_audio();
 int queue_square_wave(AudioState* state, float tone_hz, unsigned duration_ms);
+}  // namespace audio
 
 #endif  // AUDIO_H

@@ -41,11 +41,11 @@ int main() {
   void* base_address = nullptr;
 #endif
 
-  auto mem = init_memory(MiB(64), GiB(2), base_address);
+  auto mem = memory::init_memory(MiB(64), GiB(2), base_address);
 
   // TODO: sure would be nice for this to be a test
   // // Debugging, deleteme
-  // const auto datafile = locate_asset("somedata");
+  // const auto datafile = resources::locate_asset("somedata");
   // auto npbytes = mem.persistent_bytes;
   // auto ntbytes = mem.transient_bytes;
   // const auto file1 = read_into_memory(datafile, &mem.persistent_ptr,
@@ -53,12 +53,12 @@ int main() {
   // &mem.transient_ptr, &ntbytes); spdlog::critical("delete this");
   // // debugging, deleteme
 
-  GameState state = {
-      .video = init_video(),
-      .audio = init_audio(),
-      .input = init_input(),
-      .perf = init_perf(),
-      .world = init_world()};
+  state::GameState state = {
+      .video = video::init_video(),
+      .audio = audio::init_audio(),
+      .input = inputs::init_input(),
+      .perf = perf::init_perf(),
+      .world = world::init_world()};
 
   /* ----- Prep for the loop ----- */
   const auto first_tick = SDL_GetTicks64();
@@ -75,7 +75,7 @@ int main() {
 
     // 1) handle events
     while (SDL_PollEvent(&event)) {
-      handle_event(&state, &event);
+      events::handle_event(&state, &event);
       if (state.should_quit) {
         spdlog::critical("Exit main loop (quit flag set)");
         return 0;
@@ -93,11 +93,14 @@ int main() {
     // (this is extremely hacky framerate limiter
     // https://stackoverflow.com/a/75967125/1958900)
     if (tick >= next_draw_tick) {
-      MEASURE_PERF(AV, &state.perf, {
+      MEASURE_PERF(perf::AV, &state.perf, {
         MEASURE_PERF(
-            PAINT, &state.perf, paint_window(&state.video, &state.world);)
+            perf::PAINT,
+            &state.perf,
+            video::paint_window(&state.video, &state.world);)
 
-        if (queue_square_wave(&state.audio, state.world.tone_hz, 20) == 0) {
+        if (audio::queue_square_wave(&state.audio, state.world.tone_hz, 20) ==
+            0) {
           // update tone
           state.world.tone_hz =
               state.world.tone_hz > 900.f ? 30.f : state.world.tone_hz * 1.005f;
@@ -112,8 +115,8 @@ int main() {
             "Timings/ms for frame {}: paint:{:.3f}, "
             "total_update:{:.3f}",
             state.frame_num,
-            last_perf_ms(&state.perf, PAINT),
-            last_perf_ms(&state.perf, AV));
+            last_perf_ms(&state.perf, perf::PAINT),
+            last_perf_ms(&state.perf, perf::AV));
       }
     }
   }

@@ -10,15 +10,15 @@ constexpr SDL_Color C_BLACK = {0, 0, 0, 255};
 /**** PRIVATE functions (public are below) ****/
 
 internal void paint_weird_gradient(
-    const WorldState* world,
-    Pixel* bitmap_buff,
+    const world::WorldState* world,
+    video::Pixel* bitmap_buff,
     const int w,
     const int h) {
   // Q: why looping _and_ incrementing the pointers at the same time???
   // A: because later the layout will be more complicated AIUI?
-  Pixel* row = bitmap_buff;
+  video::Pixel* row = bitmap_buff;
   for (int y = 0; y < h; y++) {
-    Pixel* pixel = row;
+    video::Pixel* pixel = row;
     for (int x = 0; x < w; x++) {
       const auto x_off = x - static_cast<int>(world->pos.x);
       const auto y_off = y - static_cast<int>(world->pos.y);
@@ -34,7 +34,7 @@ internal void paint_weird_gradient(
 
 internal errcode resize_buffer(
     SDL_Renderer* renderer,
-    ScreenBuffer* buffer,
+    video::ScreenBuffer* buffer,
     const int w,
     const int h) {
   if (buffer->w == w && buffer->h == h)
@@ -55,7 +55,7 @@ internal errcode resize_buffer(
           SDL_TEXTUREACCESS_STREAMING,
           w,
           h),
-      .pixel_buff = new Pixel[w * h],
+      .pixel_buff = new video::Pixel[w * h],
       .w = w,
       .h = h};
 
@@ -65,6 +65,8 @@ internal errcode resize_buffer(
 }
 
 /**** PUBLIC ****/
+namespace video {
+
 VideoState init_video() {
   // Initialize SDL_ttf
   if (TTF_Init() == -1) {
@@ -92,7 +94,8 @@ VideoState init_video() {
   }
 
   // load font (TODO: does this belong here?)
-  auto const debug_font_path = locate_asset("fonts/Hack-Regular.ttf");
+  auto const debug_font_path =
+      resources::locate_asset("fonts/Hack-Regular.ttf");
   TTF_Font* debug_font = TTF_OpenFont(debug_font_path.c_str(), 12);
   if (debug_font == nullptr) {
     throw std::runtime_error(
@@ -102,6 +105,7 @@ VideoState init_video() {
   return VideoState{
       .window = window,
       .renderer = renderer,
+      .screen_buffer = {},
       .debug_font = debug_font};
 }
 
@@ -140,7 +144,7 @@ errcode render_text(
   return 0;
 }
 
-errcode paint_window(VideoState* video, const WorldState* world) {
+errcode paint_window(VideoState* video, const world::WorldState* world) {
   // TODO: don't use C-style error handling here, probably?
 
   // get renderer, clear buffer
@@ -193,3 +197,5 @@ errcode paint_window(VideoState* video, const WorldState* world) {
 
   return 0;
 }
+
+}  // namespace video

@@ -4,6 +4,10 @@
 #include "./common.h"
 #include "./state.h"
 
-void handle_event(GameState* state, const SDL_Event* event);
+namespace events {
+
+void handle_event(state::GameState* state, const SDL_Event* event);
+
+}  // namespace events
 
 #endif  // EVENTS_H

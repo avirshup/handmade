@@ -1,5 +1,6 @@
 #include "./perf.h"
 
+namespace perf {
 PerfCounter init_perf() {
   return PerfCounter{.freq_hz = SDL_GetPerformanceFrequency()};
 }
@@ -37,3 +38,4 @@ float last_perf_ms(const PerfCounter* counter, const PerfEvent event) {
   return static_cast<float>(end - start) * 1000.f /
          static_cast<float>(counter->freq_hz);
 }
+}  // namespace perf

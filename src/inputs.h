@@ -7,6 +7,7 @@
 
 using namespace std;
 
+namespace inputs {
 typedef int ControllerId;
 typedef Uint8 InputId;
 
@@ -35,23 +36,23 @@ Input handling
 *******************/
 errcode keyboard_key(
     InputState* state,
-    WorldState* world,
+    world::WorldState* world,
     SDL_Keysym key,
     InputId pressed,
     bool repeat);
 
 errcode controller_button(
     InputState* state,
-    WorldState* world,
+    world::WorldState* world,
     SDL_JoystickID jid,
     SDL_GameControllerButton button,
     InputId pressed);
 
 errcode controller_axis(
     InputState* state,
-    WorldState* world,
+    world::WorldState* world,
     SDL_JoystickID jid,
     SDL_GameControllerAxis axis,
     Sint32 value);
-
+}  // namespace inputs
 #endif  // INPUTS_H

@@ -6,6 +6,7 @@
 #include "common.h"
 using namespace std;
 
+namespace perf {
 enum PerfEvent {
   PAINT,
   AV,
@@ -24,6 +25,7 @@ PerfCounter init_perf();
 void perf_start(PerfCounter* counter, const PerfEvent event);
 void perf_end(PerfCounter* counter, const PerfEvent event);
 float last_perf_ms(const PerfCounter* counter, const PerfEvent event);
+}  // namespace perf
 
 #define MEASURE_PERF(name, counter, block) \
   perf_start(counter, name);               \

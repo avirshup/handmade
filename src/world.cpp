@@ -8,6 +8,7 @@ constexpr float GRAVITY = 400.0;
 
 constexpr float DRAG = 1.0;  // ratio accel to velocity, units of 1/s
 
+namespace world {
 WorldState init_world() {
   return WorldState{.last_tick_ms = SDL_GetTicks64()};
 }
@@ -34,3 +35,4 @@ void update_world(WorldState* world, const u64 tick_ms) {
   world->last_tick_ms = tick_ms;
   world->time_s += dt;
 }
+}  // namespace world

@@ -2,6 +2,7 @@
 #include <sys/mman.h>
 #include "./common.h"
 
+namespace memory {
 GameMemory init_memory(
     const u64 persistent_bytes,
     const u64 transient_bytes,
@@ -31,3 +32,4 @@ GameMemory init_memory(
 
   };
 }
+}  // namespace memory

@@ -17,6 +17,7 @@ using namespace std;
 // TODO: this will turn into our ring buffer
 global_var vector<Sample> BUFFER = {};
 
+namespace audio {
 void pause_audio(AudioState* state, const bool pause) {
   SDL_PauseAudioDevice(state->device_id, pause ? 1 : 0);
   state->paused = pause;
@@ -105,3 +106,4 @@ AudioState init_audio() {
 
   return state;
 }
+}  // namespace audio

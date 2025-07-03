@@ -3,6 +3,7 @@
 #define MEMORY_H
 #include "./common.h"
 
+namespace memory {
 struct GameMemory {
   u64 persistent_bytes;
   void* persistent_start;
@@ -17,5 +18,6 @@ GameMemory init_memory(
     const u64 persistent_bytes,
     const u64 transient_bytes,
     void* base_address);
+}  // namespace memory
 
 #endif  // MEMORY_H

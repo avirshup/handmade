@@ -5,6 +5,8 @@
 /*******************
   Phaser class impl
 *******************/
+
+namespace audio {
 Phaser::Phaser(const unsigned period_ticks) : m_period(period_ticks) {}
 
 unsigned Phaser::next() {
@@ -112,3 +114,4 @@ unsigned SquareWaveGenerator::_calc_duty_period() const {
   return static_cast<unsigned>(
       duty_cycle_ * static_cast<float>(this->phaser.get_period()));
 }
+}  // namespace audio

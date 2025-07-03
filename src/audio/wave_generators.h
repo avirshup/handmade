@@ -4,6 +4,7 @@
 /*******************
   Phaser class decl
 *******************/
+namespace audio {
 class Phaser {
  public:
   explicit Phaser(const unsigned period_ticks);
@@ -80,3 +81,4 @@ class SquareWaveGenerator final : public IWaveGenerator {
   unsigned m_duty_subperiod;
   [[nodiscard]] unsigned _calc_duty_period() const;
 };
+}  // namespace audio

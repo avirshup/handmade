@@ -7,12 +7,8 @@
 
 using namespace std;
 
-InputState init_input() {
-  return InputState{};
-}
-
-internal auto get_gpad(InputState* state, const SDL_JoystickID jid)
-    -> optional<reference_wrapper<GPad>> {
+internal auto get_gpad(inputs::InputState* state, const SDL_JoystickID jid)
+    -> optional<reference_wrapper<inputs::GPad>> {
   if (const auto it = state->gamepads.find(jid); it != state->gamepads.end()) {
     return ref(it->second);  // wrap the reference
   }
@@ -20,9 +16,14 @@ internal auto get_gpad(InputState* state, const SDL_JoystickID jid)
 }
 
 /***** Input events ******/
+namespace inputs {
+InputState init_input() {
+  return InputState{};
+}
+
 errcode keyboard_key(
     InputState* state,
-    WorldState* world,
+    world::WorldState* world,
     const SDL_Keysym key,
     const InputId pressed,
     const bool repeat) {
@@ -61,7 +62,7 @@ errcode keyboard_key(
 
 errcode controller_button(
     InputState* state,
-    WorldState* world,
+    world::WorldState* world,
     const SDL_JoystickID jid,
     const SDL_GameControllerButton button,
     const Uint8 pressed) {
@@ -80,7 +81,7 @@ errcode controller_button(
 
 errcode controller_axis(
     InputState* state,
-    WorldState* world,
+    world::WorldState* world,
 
     const SDL_JoystickID jid,
     const SDL_GameControllerAxis axis,
@@ -125,3 +126,5 @@ errcode remove_controller(InputState* state, const SDL_JoystickID jid) {
   state->gamepads.erase(jid);
   return 0;
 }
+
+}  // namespace inputs

@@ -3,8 +3,10 @@
 #include "./inputs.h"
 #include "./state.h"
 
+namespace events {
+
 // Event: https://wiki.libsdl.org/SDL2/SDL_Event
-void handle_event(GameState* state, const SDL_Event* event) {
+void handle_event(state::GameState* state, const SDL_Event* event) {
   /* Returns true if it should quit */
   switch (event->type) {
     case SDL_QUIT: {
@@ -90,3 +92,4 @@ void handle_event(GameState* state, const SDL_Event* event) {
     } break;
   }
 }
+}  // namespace events

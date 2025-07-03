@@ -6,6 +6,7 @@
 
 using namespace std;
 
+namespace resources {
 filesystem::path locate_asset(const std::string& subpath) {
   // ASSET_PATH is defined in CMakeLists.txt
   filesystem::path asset_root(ASSET_PATH);
@@ -56,3 +57,4 @@ read_into_memory(filesystem::path path, void** mem_ptr, u64* max_size_bytes) {
   file.close();
   return result;
 }
+}  // namespace resources

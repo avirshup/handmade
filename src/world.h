@@ -4,6 +4,7 @@
 #include "common.h"
 #include "glm/vec2.hpp"
 
+namespace world {
 struct WorldState {
   u64 last_tick_ms = 0;
   float time_s = 0.0;
@@ -17,4 +18,5 @@ struct WorldState {
 WorldState init_world();
 
 void update_world(WorldState* world, u64 tick_ms);
+}  // namespace world
 #endif  // WORLD_H

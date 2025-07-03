@@ -1,4 +1,3 @@
-
 #ifndef STATE_H
 #define STATE_H
 
@@ -11,15 +10,17 @@
 
 using namespace std;
 
+namespace state {
 struct GameState {
   u64 frame_num = 0;
   bool should_quit = false;
 
-  VideoState video;
-  InputState input;
-  AudioState audio;
-  WorldState world;
-  PerfCounter perf;
+  video::VideoState video;
+  inputs::InputState input;
+  audio::AudioState audio;
+  world::WorldState world;
+  perf::PerfCounter perf;
 };
+}  // namespace state
 
 #endif  // STATE_H
